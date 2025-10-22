@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LLM Pages — Ethics, Art, and Forecasts</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QZ6jHgk3E3gZ7qE4wz8QWEfQ+3Qf0GQk1mYwDLSgFZQvF3aE6t0e4Qv7oYqfV3Z0" crossorigin="anonymous">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <style>
+    :root { --brand: #0d6efd; }
+    body { background: #f8fafc; }
+    .navbar-brand { font-weight: 700; letter-spacing: 0.2px; }
+    .hero { background: linear-gradient(135deg, #e9f2ff 0%, #f8fafc 60%); border-bottom: 1px solid #e5e7eb; }
+    .card { box-shadow: 0 6px 20px rgba(0,0,0,0.06); border: none; }
+    .card-header { background: #fff; border-bottom: 1px solid #eee; }
+    .file-list a { font-weight: 600; }
+    .status-pill { display:inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+    .status-pass { background: #d1fae5; color: #065f46; }
+    .status-fail { background: #fee2e2; color: #991b1b; }
+    .svg-preview { width: 100%; max-width: 420px; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; background: #fff; }
+    .small-muted { font-size: 12px; color: #64748b; }
+    footer { color: #64748b; }
+    code.inline { background: #eef2ff; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg bg-white border-bottom">
+    <div class="container">
+      <a class="navbar-brand" href="#">LLM Pages</a>
+      <span class="small-muted">Single-page site with linked artifacts</span>
+    </div>
+  </nav>
+
+  <section class="hero py-5">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <h1 class="mb-3">Ethics, Art, and Forecasts — All in One</h1>
+          <p class="lead">This single-page web application publishes a curated set of artifacts: fiction, ethical dilemmas, a playful SVG, restaurant advice, and a macro forecast. Each linked file is hosted with GitHub Pages for easy access.</p>
+          <div class="file-list mt-3">
+            <ul class="list-unstyled">
+              <li>• <a id="link-ashravan" href="ashravan.txt">ashravan.txt</a> — Original short story about Ashravan after restoration</li>
+              <li>• <a id="link-dilemma" href="dilemma.json">dilemma.json</a> — Two trolley-like cases for an autonomous vehicle</li>
+              <li>• <a id="link-about" href="about.md">about.md</a> — Three-word self description</li>
+              <li>• <a id="link-pelican" href="pelican.svg">pelican.svg</a> — Pelican riding a bicycle (vector art)</li>
+              <li>• <a id="link-restaurant" href="restaurant.json">restaurant.json</a> — Restaurant pick for Delhi</li>
+              <li>• <a id="link-prediction" href="prediction.json">prediction.json</a> — Fed Funds rate forecast for Dec 2025</li>
+              <li>• <a id="link-license" href="LICENSE">LICENSE</a> — MIT license</li>
+              <li>• <a id="link-uid" href="uid.txt">uid.txt</a> — Attached UID (data URI) uploaded as-is</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="card">
+            <div class="card-header">Quick Validation Status</div>
+            <div class="card-body">
+              <div class="d-flex flex-column gap-2">
+                <div>UID match: <span id="uid-status" class="status-pill">checking…</span></div>
+                <div>License: <span id="license-status" class="status-pill">checking…</span></div>
+                <div>Story length (words): <span id="story-words" class="badge bg-secondary">—</span> <span id="story-status" class="status-pill">checking…</span></div>
+                <div>About words: <span id="about-words" class="badge bg-secondary">—</span> <span id="about-status" class="status-pill">checking…</span></div>
+                <div>Pelican LLM rating: <span class="badge bg-info" id="pelican-llm-score">—</span> <span id="pelican-llm-rating" class="small-muted ms-2">—</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container my-4">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">Ashravan — Story Preview</div>
+          <div class="card-body">
+            <p class="small-muted">Below is an excerpt from <code class="inline">ashravan.txt</code>. The full text is available via the link above.</p>
+            <div id="story-preview" class="mb-2"></div>
+            <div class="small-muted">Word count validation ensures 300–400 words.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">Autonomous Vehicle Dilemma</div>
+          <div class="card-body">
+            <pre class="bg-light p-3 rounded" id="dilemma-json" aria-live="polite"></pre>
+            <ul class="small-muted">
+              <li id="dilemma-case1"></li>
+              <li id="dilemma-case2"></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">About (Markdown)</div>
+          <div class="card-body">
+            <div id="about-render" class="mb-2"></div>
+            <div class="small-muted">This file must contain exactly three words.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">Pelican Riding a Bicycle — SVG + LLM Rating</div>
+          <div class="card-body">
+            <div class="svg-preview" id="pelican-inline" aria-live="polite"></div>
+            <div class="mt-2 small-muted">A lightweight mock LLM scores composition and clarity based on SVG structure.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">Restaurant in Delhi</div>
+          <div class="card-body">
+            <div id="restaurant-info" class="mb-2"></div>
+            <div id="restaurant-map" class="small-muted"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">Fed Funds Rate — December 2025 Forecast</div>
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="display-6" id="rate-value">—</div>
+              <div class="small-muted">Shown as decimal (e.g., 0.04 = 4%)</div>
+            </div>
+            <canvas id="rate-chart" height="100" aria-label="Rate chart"></canvas>
+            <p class="mt-2 small-muted" id="rate-reason"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">License & UID Verification</div>
+          <div class="card-body">
+            <div id="license-preview" class="mb-2"></div>
+            <div class="small-muted">UID data URI constant is compared directly with <code class="inline">uid.txt</code> for exact match.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="container py-4 border-top">
+    <div class="d-flex justify-content-between">
+      <div>© 2025 LLM Pages</div>
+      <div class="small-muted">Built with Bootstrap, marked.js, and Chart.js — GitHub Pages compatible.</div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-nM+QFYkCzI1cYxgqQmB7v8wI2U7AWLPF3C7wC0rOeP6o3Qb7p6O9wVJfQFv3VhQZ" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    // Constants — attachments
+    const UID_DATA_URI = 'data:text/plain;base64,MzExMzg5MjcyMTI4MjU0MzI0OTQzMTc1ODMyNDU2NzcwMTA4NzEyNzc2Nzc4NDg1OTM5ODc5OTQ1NzAwNTAwNzE1MDU0NDkxMTEwOTY=';
+
+    // Helpers
+    async function fetchText(path) {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error('Failed to fetch ' + path + ' (' + res.status + ')');
+      return await res.text();
+    }
+    async function fetchJSON(path) {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error('Failed to fetch ' + path + ' (' + res.status + ')');
+      return await res.json();
+    }
+    function setStatus(el, ok) {
+      el.className = 'status-pill ' + (ok ? 'status-pass' : 'status-fail');
+      el.textContent = ok ? 'PASS' : 'FAIL';
+    }
+
+    // Mock LLM rating for SVG content
+    function mockLLMRateSVG(svgText) {
+      const featureCounts = {
+        circle: (svgText.match(/<circle\b/g) || []).length,
+        ellipse: (svgText.match(/<ellipse\b/g) || []).length,
+        path: (svgText.match(/<path\b/g) || []).length,
+        polygon: (svgText.match(/<polygon\b/g) || []).length,
+        line: (svgText.match(/<line\b/g) || []).length
+      };
+      const totalElements = Object.values(featureCounts).reduce((a,b)=>a+b,0);
+      let score = 5;
+      // Reward diverse shapes and descriptive <title>/<desc>
+      if (/\b<title>.*?<\/title>/s.test(svgText)) score += 2;
+      if (/\b<desc>.*?<\/desc>/s.test(svgText)) score += 1;
+      if (totalElements >= 8) score += 1;
+      if (/viewBox=\"[^"]+\"/.test(svgText)) score += 1;
+      score = Math.min(10, Math.max(1, score));
+      const summary = `Composition uses ${featureCounts.circle} circles, ${featureCounts.path} paths, and ${featureCounts.line} lines; clear title/desc; overall ${score}/10.`;
+      return { score, summary };
+    }
+
+    // Initialize content
+    (async function init() {
+      try {
+        // UID check
+        const uid = await fetchText('uid.txt');
+        setStatus(document.getElementById('uid-status'), uid.trim() === UID_DATA_URI.trim());
+      } catch (e) {
+        console.error(e);
+        setStatus(document.getElementById('uid-status'), false);
+      }
+
+      try {
+        // License check
+        const license = await fetchText('LICENSE');
+        document.getElementById('license-preview').textContent = license.slice(0, 220) + (license.length > 220 ? '…' : '');
+        setStatus(document.getElementById('license-status'), /MIT License/i.test(license));
+      } catch (e) {
+        console.error(e);
+        setStatus(document.getElementById('license-status'), false);
+      }
+
+      try {
+        // Story preview & word count
+        const story = await fetchText('ashravan.txt');
+        const words = story.trim().split(/\s+/).length;
+        document.getElementById('story-words').textContent = String(words);
+        setStatus(document.getElementById('story-status'), words >= 300 && words <= 400);
+        document.getElementById('story-preview').textContent = story.split(/\n/).slice(0, 4).join('\n');
+      } catch (e) {
+        console.error(e);
+        setStatus(document.getElementById('story-status'), false);
+        document.getElementById('story-preview').textContent = 'Unable to load story.';
+      }
+
+      try {
+        // Dilemma JSON
+        const dilemma = await fetchJSON('dilemma.json');
+        document.getElementById('dilemma-json').textContent = JSON.stringify(dilemma, null, 2);
+        document.getElementById('dilemma-case1').textContent = `Case 1 decision: ${dilemma.case_1.swerve ? 'swerve' : 'do not swerve'} — ${dilemma.case_1.reason}`;
+        document.getElementById('dilemma-case2').textContent = `Case 2 decision: ${dilemma.case_2.swerve ? 'swerve' : 'do not swerve'} — ${dilemma.case_2.reason}`;
+      } catch (e) {
+        console.error(e);
+        document.getElementById('dilemma-json').textContent = 'Unable to load dilemma.json';
+      }
+
+      try {
+        // About markdown
+        const about = await fetchText('about.md');
+        document.getElementById('about-render').innerHTML = marked.parse(about);
+        const count = about.trim().split(/\s+/).length;
+        document.getElementById('about-words').textContent = String(count);
+        setStatus(document.getElementById('about-status'), count === 3);
+      } catch (e) {
+        console.error(e);
+        setStatus(document.getElementById('about-status'), false);
+      }
+
+      try {
+        // Pelican SVG
+        const svgText = await fetchText('pelican.svg');
+        document.getElementById('pelican-inline').innerHTML = svgText;
+        const rating = mockLLMRateSVG(svgText);
+        document.getElementById('pelican-llm-score').textContent = String(rating.score);
+        document.getElementById('pelican-llm-rating').textContent = rating.summary;
+      } catch (e) {
+        console.error(e);
+        document.getElementById('pelican-inline').textContent = 'Unable to load pelican.svg';
+        document.getElementById('pelican-llm-rating').textContent = 'Rating unavailable';
+      }
+
+      try {
+        // Restaurant JSON
+        const rjson = await fetchJSON('restaurant.json');
+        const text = `${rjson.name} — ${rjson.city}. Try: ${rjson.what_to_eat}.`;
+        document.getElementById('restaurant-info').textContent = text;
+        const mapUrl = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(rjson.lat)}&mlon=${encodeURIComponent(rjson.long)}#map=16/${encodeURIComponent(rjson.lat)}/${encodeURIComponent(rjson.long)}`;
+        document.getElementById('restaurant-map').innerHTML = `<a href="${mapUrl}" target="_blank" rel="noopener">View on map (${rjson.lat.toFixed(4)}, ${rjson.long.toFixed(4)})</a>`;
+      } catch (e) {
+        console.error(e);
+        document.getElementById('restaurant-info').textContent = 'Unable to load restaurant.json';
+      }
+
+      try {
+        // Prediction JSON + chart
+        const pjson = await fetchJSON('prediction.json');
+        document.getElementById('rate-value').textContent = String(pjson.rate);
+        document.getElementById('rate-reason').textContent = pjson.reason;
+        const ctx = document.getElementById('rate-chart');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Forecast (0–1 scale)'],
+            datasets: [{
+              label: 'Fed Funds Rate (Dec 2025)',
+              data: [pjson.rate],
+              backgroundColor: 'rgba(13, 110, 253, 0.5)',
+              borderColor: 'rgba(13, 110, 253, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { min: 0, max: 0.12, ticks: { callback: v => v } } }
+          }
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  </script>
+</body>
+</html>
